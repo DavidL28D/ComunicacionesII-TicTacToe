@@ -34,7 +34,7 @@ class server():
             # recibiendo respuestas
             print('Esperando por jugador...')
 
-            data, address = sock.recvfrom (1024)
+            data, address = sock.recvfrom (1234)
             print(f'Retador: {data} desde {address}')
 
             message = 'SIVAPUTO'
@@ -55,7 +55,7 @@ class server():
 
                 try:
 
-                    data, address = sock.recvfrom(1024)
+                    data, address = sock.recvfrom(1234)
                     print(f'Retador: {data} desde {address}')
                     message = 'Conectado'
                     sock.sendto(message.encode('utf-8'), address)

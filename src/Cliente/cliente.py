@@ -32,7 +32,7 @@ class client():
             print('Enviando reto...')
             message='Epa quiero jugar'
             sock.sendto(message.encode('utf-8'), multicast_group)
-            data, server = sock.recvfrom(1024)
+            data, server = sock.recvfrom(1234)
             print(f'Host: {data} desde {server}')
 
         except socket.timeout:
@@ -50,7 +50,7 @@ class client():
 
                     message = 'Conectado.'
                     sock.sendto(message.encode('utf-8'), server)
-                    data, server = sock.recvfrom(1024)
+                    data, server = sock.recvfrom(1234)
                     print(f'Host: {data} desde {server}')
                     
                 except socket.timeout:
