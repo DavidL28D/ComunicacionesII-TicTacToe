@@ -29,8 +29,8 @@ class client():
         try:
 
             # enviando la data al grupo multicast
-            print('Enviando reto...')
-            message='Epa quiero jugar'
+            print('Buscando partida...')
+            message='Epa quiero jugar!!'
             sock.sendto(message.encode('utf-8'), multicast_group)
             data, server = sock.recvfrom(1234)
             print(f'Host: {data} desde {server}')

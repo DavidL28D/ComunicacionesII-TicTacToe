@@ -35,9 +35,9 @@ class server():
             print('Esperando por jugador...')
 
             data, address = sock.recvfrom (1234)
-            print(f'Retador: {data} desde {address}')
+            print(f'Invitado: {data} desde {address}')
 
-            message = 'SIVAPUTO'
+            message = 'Juguemos!!'
             sock.sendto(message.encode('utf-8'), address)
 
             sock.settimeout(3)
@@ -56,13 +56,13 @@ class server():
                 try:
 
                     data, address = sock.recvfrom(1234)
-                    print(f'Retador: {data} desde {address}')
+                    print(f'Invitado: {data} desde {address}')
                     message = 'Conectado'
                     sock.sendto(message.encode('utf-8'), address)
 
                 except socket.timeout:
 
-                    print('El retador se desconecto.')
+                    print('El Invitado se desconecto.')
                     sock.close()
                     break
 
