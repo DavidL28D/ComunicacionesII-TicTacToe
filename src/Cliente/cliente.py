@@ -59,6 +59,7 @@ class client():
         data = conn.recv(1024)
         print ("- Mensaje del enemigo:", data.decode())
         
+        # Fase de preparacion
         t = tablero()
         print('Esperando que el jugador enemigo coloque una ficha..')
 
@@ -68,18 +69,51 @@ class client():
         print('Fase de preparacion terminada..')
         t.mostrar_tablero()
         print('')
+        # Fase de preparacion
 
         while True:
-            
+
             print('Esperando jugada enemiga...')
+
             message = conn.recv(1024)
             message = message.decode()
-            print("Mensaje Recibido: ", message)
-            message = input(str("Mensaje a enviar: "))
-            if message == "quit()":
-                message = "Se ha abandonado la conexion"
-                conn.send(message.encode())
-                print("\n")
+            coordenadas = message.split(',')
+
+            if(coordenadas[0] == 'Jugador enemigo ha vencido.'):
+                t.validar_movimiento(int(coordenadas[1]), int(coordenadas[2]), int(coordenadas[3]), int(coordenadas[4]), 1)
+                print('\nJugador enemigo ha vencido.')
+                print('Resultado')
+                t.mostrar_tablero()
+                print('')
                 break
+
+            t.validar_movimiento(int(coordenadas[0]), int(coordenadas[1]), int(coordenadas[2]), int(coordenadas[3]), 1)
+
+            while True:
+                print('Mi Turno..')
+                t.mostrar_tablero()
+                print('')
+
+                xi = int(input("Ingrese la coordenada x de la pieza a mover: "))
+                yi = int(input("Ingrese la coordenada y de la pieza a mover: "))
+                xf = int(input("Ingrese la coordenada x la casilla a donde quieres mover la pieza: "))
+                yf = int(input("Ingrese la coordenada y la casilla a donde quieres mover la pieza: "))
+
+                if(t.validar_movimiento(yi, xi, yf, xf, 2)):
+                    break
+
+            print('\nResultado')
+            t.mostrar_tablero()
+            print('')
+
+            if(t.comprobar_ganador(yf,xf)):
+
+                print('He ganado')
+                message = "Jugador enemigo ha vencido.,"+str(yi)+','+str(xi)+','+str(yf)+','+str(xf)
+                conn.send(message.encode())
+                print("")
+                break
+
+            message = str(yi)+','+str(xi)+','+str(yf)+','+str(xf)
             conn.send(message.encode())
 

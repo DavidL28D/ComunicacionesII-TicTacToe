@@ -61,6 +61,19 @@ class tablero:
         self.tablero[y][x] = tipo
         #print(self.comprobar_ganador(y,x))
 
+    def validar_movimiento(self, yi, xi, yf, xf, tipo):
+
+        if (self.tablero[yf][xf] == 0 and self.tablero[yi][xi] == tipo):
+            if((xi+1 == xf and yi == yf) or (xi+1 == xf and yi+1 == yf) or (xi == xf and yi+1 == yf) or (xi-1 == xf and yi+1 == yf) or (xi-1 == xf and yi == yf) or (xi-1 == xf and yi-1 == yf) or(xi == xf and yi-1 == yf) or (xi+1 == xf and yi-1 == yf)):
+                self.mover_ficha(yi, xi, yf, xf, tipo)
+                return True
+            else:
+                print('Movimiento incorrecto, vuelve a intentarlo.\n')
+                return False
+        else:
+            print('Movimiento incorrecto, vuelve a intentarlo.\n')
+            return False
+
     def mover_ficha(self, yi, xi, yf, xf, tipo):
 
         self.tablero[yf][xf] = tipo
