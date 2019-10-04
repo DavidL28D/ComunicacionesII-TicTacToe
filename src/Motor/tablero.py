@@ -15,45 +15,42 @@ class tablero:
 
         return matrix
 
-    def preparar_tablero(self):
+    def preparar_tablero(self, tipo):
 
-        for i in range(6):
+        print("*** Preparacion ***")
+        self.mostrar_tablero()
+        print("*** Preparacion ***\n")
 
-            print("*** Preparacion ***")
-            self.mostrar_tablero()
-            print("*** Preparacion ***\n")
+        if( tipo == 1 ):
 
-            if( i%2 ==0 ):
+            print("Jugador 1: ")
 
-                tipo = 1
-                print("Jugador 1: ")
+        else:
 
-            else:
+            print("Jugador 2: ")
 
-                tipo = 2
-                print("Jugador 2: ")
+        while(True):    
 
-            while(True):    
+            x = int(input("Ingresa la coordenada x: "))
+            y = int(input("Ingresa la coordenada y: "))
 
-                x = int(input("Ingresa la coordenada x: "))
-                y = int(input("Ingresa la coordenada y: "))
+            if((x >= 0 and x<3) and (y >= 0 and y<3)):
 
-                if((x >= 0 and x<3) and (y >= 0 and y<3)):
+                if(self.tablero[y][x] == 0):
 
-                    if(self.tablero[y][x] == 0):
+                    self.poner_ficha(y, x, tipo)
+                    break
 
-                        self.poner_ficha(y, x, tipo)
-                        break
-
-                    else:
-                        print("\nYa existe una ficha en la posicion indicada")
-                    
                 else:
-                    print("\nIncorrecto, intente nuevamente.")
+                    print("\nYa existe una ficha en la posicion indicada")
+                
+            else:
+                print("\nIncorrecto, intente nuevamente.")
             
             print("")
 
-
+        return str(y)+','+str(x)
+           
     def mostrar_tablero(self):
 
         for fila in self.tablero:

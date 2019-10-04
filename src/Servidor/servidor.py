@@ -3,6 +3,7 @@ import struct
 import sys
 import json
 import time
+from Motor.tablero import tablero
 
 class server():
 
@@ -10,75 +11,86 @@ class server():
 
         self.iniciar()
 
+    def anunciar_servidor(self):
+
+        grupo_multicast = '224.0.0.1'
+        puerto_multicast = 3000
+
+        direccion_bind = '0.0.0.0'
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        membership = socket.inet_aton(grupo_multicast) + socket.inet_aton(direccion_bind)
+
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, membership)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        sock.bind((direccion_bind, puerto_multicast))
+        print("Esperando un jugador...")
+        message, address = sock.recvfrom(255)
+
+        TCP_IP = str(address[0])
+        print('- Conectado a jugador enemigo con ip: {0}'.format(TCP_IP))
+        print('- Mensaje del enemigo: {0}'.format(message.decode()))
+
+        sock.close()
+
+        return TCP_IP
+
+    def preparar(self, t, s):
+        
+        message = t.preparar_tablero(1)
+        print('\nResultado')
+        t.mostrar_tablero()
+        print('')
+        s.send(message.encode())
+        print('Esperando que el jugador enemigo coloque una ficha..')
+
+    def fase_preparacion(self, t, s):
+
+        message = s.recv(1024)
+        message = message.decode()
+        coordenadas = message.split(',')
+        t.poner_ficha(int(coordenadas[0]), int(coordenadas[1]), 2)
+        self.preparar(t, s)
+
     def iniciar(self):
 
-        multicast_group = '224.3.29.71'
-        server_address = ('', 1234)
+        TCP_IP = self.anunciar_servidor()
+        TCP_PORT = 5005
 
-        # crea el socket por el cual se van a transferir los datagramas
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        MESSAGE = "Hola {0}, Estamos conectados mediante TCP".format(TCP_IP)
 
-        # enlazar socket
-        sock.bind(server_address)
+        # inicia la conexion tcp
+        s = socket.socket()
+        s.connect((TCP_IP, TCP_PORT))
+        s.send(MESSAGE.encode())
 
-        # tiempo de espera de respuesta (1 minuto)
-        sock.settimeout(60)
+        t = tablero()
+        self.preparar(t, s)
+        for i in range(2):
+            self.fase_preparacion(t, s)
 
-        # añadiendo el socket al grupo multicast
-        group = socket.inet_aton(multicast_group)
-        mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-        sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        message = s.recv(1024)
+        message = message.decode()
+        coordenadas = message.split(',')
+        t.poner_ficha(int(coordenadas[0]), int(coordenadas[1]), 2)
 
-        try:
-
-            # recibiendo respuestas
-            print('Esperando por jugador...')
-
-            data, address = sock.recvfrom (1234)
-            print(f'Invitado: {data} desde {address}')
-
-            message = 'Juguemos!!'
-            sock.sendto(message.encode('utf-8'), address)
-
-            sock.settimeout(3)
+        print('Fase de preparacion terminada..')
+        t.mostrar_tablero()
+        print('')
         
-        except socket.timeout:
 
-            print("No existe jugadores disponibles")
-            sock.close()
-        
-        else:
+        while True:
+            message = input(str("Mensaje a enviar: "))
+            if message == "quit()":
+                message = "Se ha abandonado la conexión"
+                s.send(message.encode())
+                print("\n")
+                break
+            s.send(message.encode())
 
-            while True:
+            print('Esperando jugada enemiga..')
+            message = s.recv(1024)
+            message = message.decode()
+            print("Recibido: ", message)
 
-                time.sleep(1)
 
-                try:
-
-                    data, address = sock.recvfrom(1234)
-                    print(f'Invitado: {data} desde {address}')
-                    message = 'Conectado'
-                    sock.sendto(message.encode('utf-8'), address)
-
-                except socket.timeout:
-
-                    print('El Invitado se desconecto.')
-                    sock.close()
-                    break
-
-                else:
-                    pass
-                '''
-                if band:
-                    message = input('Escribir: ')
-                    sock.sendto(message.encode(), multicast_group)
-                else:
-                    data, address = sock.recvfrom(1024)
-                    data = json.loads(data.decode())
-                    print(f'Jugador invitado: {data.get("a")} desde {address}')
-                    print(f'Jugador invitado: {data.get("b")} desde {address}')
-                #data, address = sock.recvfrom(1024)
-                #print(f'Jugador invitado: {data} desde {address}')
-                '''
-
-            
